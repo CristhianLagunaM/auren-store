@@ -1,0 +1,65 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Product {
+  id               BigInt    @id @default(autoincrement())
+  sku              String    @db.VarChar(60)
+  name             String    @db.VarChar(180)
+  slug             String    @db.VarChar(200)
+  shortDescription String?   @map("short_description") @db.VarChar(300)
+  description      String?
+  brand            String?   @db.VarChar(120)
+  productType      String    @map("product_type") @db.VarChar(50)
+  active           Boolean   @default(true)
+  featured         Boolean   @default(false)
+  allowBackorder   Boolean   @default(false) @map("allow_backorder")
+  whatsappEnabled  Boolean   @default(true) @map("whatsapp_enabled")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  deactivatedAt    DateTime? @map("deactivated_at")
+  createdBy        String?   @map("created_by") @db.Uuid
+
+  prices      ProductPrice[]
+  inventories Inventory[]
+  images      ProductImage[]
+
+  @@map("product")
+}
+
+model ProductPrice {
+  id             BigInt  @id @default(autoincrement())
+  product_id     BigInt
+  price          Float
+  compareAtPrice Float?  @map("compare_at_price")
+  currencyCode   String  @map("currency_code")
+  active         Boolean
+  product        Product @relation(fields: [product_id], references: [id])
+
+  @@map("product_price")
+}
+
+model Inventory {
+  id                BigInt  @id @default(autoincrement())
+  product_id        BigInt
+  quantityAvailable Int     @map("quantity_available")
+  active            Boolean
+  product           Product @relation(fields: [product_id], references: [id])
+
+  @@map("inventory")
+}
+
+model ProductImage {
+  id        BigInt  @id @default(autoincrement())
+  productId BigInt  @map("product_id")
+  publicUrl String  @map("public_url")
+  isPrimary Boolean @map("is_primary")
+  active    Boolean
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("product_image")
+}

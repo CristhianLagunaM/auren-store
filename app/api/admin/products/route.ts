@@ -2,7 +2,6 @@ import { prisma } from "@/lib/prisma";
 import { supabaseAdmin } from "@/lib/supabase";
 import { NextResponse } from "next/server";
 import { ProductCreateBody } from "@/types/product";
-import type { Prisma } from "@prisma/client";
 import { toCatalogProduct } from "@/lib/admin-products";
 
 export async function POST(req: Request) {
@@ -55,6 +54,7 @@ export async function POST(req: Request) {
       }
 
       const fileName = `auren/${Date.now()}-${imageFileName}`;
+
       const { error: uploadError } = await supabaseAdmin.storage
         .from("products")
         .upload(fileName, Buffer.from(imageFileBase64, "base64"), {
@@ -69,6 +69,7 @@ export async function POST(req: Request) {
       const publicData = supabaseAdmin.storage
         .from("products")
         .getPublicUrl(fileName);
+
       imageUrl = publicData.data.publicUrl;
     }
 
@@ -114,7 +115,7 @@ export async function POST(req: Request) {
               },
             }
           : {}),
-      } as Prisma.ProductCreateArgs["data"],
+      },
       include: {
         prices: true,
         inventories: true,
@@ -128,8 +129,12 @@ export async function POST(req: Request) {
     });
   } catch (err) {
     console.error("Error creando producto:", err);
+
     return NextResponse.json(
-      { success: false, error: err instanceof Error ? err.message : String(err) },
+      {
+        success: false,
+        error: err instanceof Error ? err.message : String(err),
+      },
       { status: 500 }
     );
   }

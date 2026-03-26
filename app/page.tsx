@@ -1,12 +1,16 @@
-export default function Home() {
+import { getStoreProducts } from "@/lib/store-products";
+import { StoreHeader } from "@/components/store/store-header";
+import { HeroSection } from "@/components/store/hero-section";
+import { StoreFront } from "@/components/store/store-front";
+
+export default async function HomePage() {
+  const products = await getStoreProducts();
+
   return (
-    <main className="min-h-screen flex items-center justify-center bg-slate-50 p-8">
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl font-semibold tracking-tight">Auren</h1>
-        <p className="text-slate-600">
-          Panel administrativo y tienda en construcción
-        </p>
-      </div>
+    <main className="min-h-screen bg-[#f8f1ef]">
+      <StoreHeader />
+      <HeroSection total={products.length} />
+      <StoreFront products={products} />
     </main>
   );
 }

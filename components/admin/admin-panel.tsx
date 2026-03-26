@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { LogoutButton } from "@/components/admin/logout-button";
 import type { CatalogProduct } from "@/types/product";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -144,19 +145,19 @@ function Toast({
   const styles =
     toast.type === "success"
       ? {
-          icon: <CheckCircle2 className="size-5 text-[#7b9b78]" />,
-          box: "border-[#dbe8d8] bg-[#f7fbf6]",
-          title: "text-[#4f6a4d]",
-          text: "text-[#688066]",
-        }
+        icon: <CheckCircle2 className="size-5 text-[#7b9b78]" />,
+        box: "border-[#dbe8d8] bg-[#f7fbf6]",
+        title: "text-[#4f6a4d]",
+        text: "text-[#688066]",
+      }
       : toast.type === "error"
-      ? {
+        ? {
           icon: <AlertCircle className="size-5 text-[#c97f78]" />,
           box: "border-[#efd2ce] bg-[#fff7f6]",
           title: "text-[#8d534c]",
           text: "text-[#a06a63]",
         }
-      : {
+        : {
           icon: <AlertCircle className="size-5 text-[#a87a72]" />,
           box: "border-[#ead7d1] bg-[#fffaf8]",
           title: "text-[#6f4b46]",
@@ -488,9 +489,9 @@ export function AdminPanel({ initialProducts }: AdminPanelProps) {
         prev.map((p) =>
           p.id === id
             ? {
-                ...p,
-                active: data.active,
-              }
+              ...p,
+              active: data.active,
+            }
             : p
         )
       );
@@ -565,9 +566,11 @@ export function AdminPanel({ initialProducts }: AdminPanelProps) {
                   <div className="relative h-36 w-36">
                     <Image
                       src="/logo.png"
-                      alt="Logo Auren"
+                      alt="Auren"
                       fill
+                      sizes="36px"
                       className="object-contain"
+                      priority
                     />
                   </div>
                 </div>
@@ -594,7 +597,7 @@ export function AdminPanel({ initialProducts }: AdminPanelProps) {
                 </p>
               </div>
 
-              <div className="flex justify-center lg:justify-end">
+              <div className="flex flex-col items-center gap-3 lg:items-end">
                 <Button
                   onClick={openCreate}
                   size="lg"
@@ -603,6 +606,7 @@ export function AdminPanel({ initialProducts }: AdminPanelProps) {
                   <Plus className="size-4" />
                   Nuevo producto
                 </Button>
+                <LogoutButton />
               </div>
             </div>
           </CardContent>
@@ -1017,11 +1021,10 @@ export function AdminPanel({ initialProducts }: AdminPanelProps) {
                         handleSelectedFile(file);
                       }}
                       onClick={() => fileInputRef.current?.click()}
-                      className={`group flex min-h-72 cursor-pointer items-center justify-center overflow-hidden rounded-3xl border-2 border-dashed transition ${
-                        isDragging
-                          ? "border-[#c78f85] bg-[#f8e8e4]"
-                          : "border-[#e5cfc8] bg-[#fcf5f3] hover:border-[#d6aba3] hover:bg-[#fbefeb]"
-                      }`}
+                      className={`group flex min-h-72 cursor-pointer items-center justify-center overflow-hidden rounded-3xl border-2 border-dashed transition ${isDragging
+                        ? "border-[#c78f85] bg-[#f8e8e4]"
+                        : "border-[#e5cfc8] bg-[#fcf5f3] hover:border-[#d6aba3] hover:bg-[#fbefeb]"
+                        }`}
                     >
                       {imagePreview ? (
                         <div className="relative h-72 w-full">
@@ -1162,8 +1165,8 @@ export function AdminPanel({ initialProducts }: AdminPanelProps) {
                 {isSaving
                   ? "Guardando..."
                   : editingId
-                  ? "Guardar cambios"
-                  : "Crear producto"}
+                    ? "Guardar cambios"
+                    : "Crear producto"}
               </Button>
             </DialogFooter>
           </DialogContent>

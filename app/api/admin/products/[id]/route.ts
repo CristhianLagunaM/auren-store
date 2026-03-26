@@ -161,7 +161,9 @@ export async function PUT(
     }
 
     if (imageUrl) {
-      const primaryImage = current.images.find((img) => img.isPrimary);
+      const primaryImage = current.images.find(
+        (img: (typeof current.images)[number]) => img.isPrimary
+      );
 
       if (primaryImage) {
         await prisma.productImage.update({
@@ -217,7 +219,7 @@ export async function PUT(
 }
 
 export async function DELETE(
-  req: Request,
+  _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {

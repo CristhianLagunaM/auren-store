@@ -1,5 +1,6 @@
+import { toCatalogProduct } from "@/lib/admin-products";
 import { prisma } from "@/lib/prisma";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(
@@ -28,6 +29,8 @@ export async function PUT(
         : undefined;
     const description =
       body.description != null ? String(body.description).trim() : undefined;
+    const productType =
+      body.productType != null ? String(body.productType).trim() : undefined;
     const price =
       body.price != null && body.price !== "" ? Number(body.price) : undefined;
     const compareAtPrice =
@@ -38,10 +41,8 @@ export async function PUT(
       body.quantityAvailable != null && body.quantityAvailable !== ""
         ? Number(body.quantityAvailable)
         : undefined;
-    const active =
-      body.active != null ? Boolean(body.active) : undefined;
-    const featured =
-      body.featured != null ? Boolean(body.featured) : undefined;
+    const active = body.active != null ? Boolean(body.active) : undefined;
+    const featured = body.featured != null ? Boolean(body.featured) : undefined;
 
     if (
       (price != null && isNaN(price)) ||
@@ -60,9 +61,15 @@ export async function PUT(
         : undefined;
 
     if (body.imageFileBase64 && body.imageFileName) {
+      if (!supabaseAdmin) {
+        throw new Error(
+          "SUPABASE_SERVICE_ROLE_KEY no está configurada para subir imágenes"
+        );
+      }
+
       const fileName = `auren/${Date.now()}-${String(body.imageFileName)}`;
 
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabaseAdmin.storage
         .from("products")
         .upload(fileName, Buffer.from(String(body.imageFileBase64), "base64"), {
           upsert: true,
@@ -73,7 +80,9 @@ export async function PUT(
         throw new Error(`Error subiendo imagen: ${uploadError.message}`);
       }
 
-      const publicData = supabase.storage.from("products").getPublicUrl(fileName);
+      const publicData = supabaseAdmin.storage
+        .from("products")
+        .getPublicUrl(fileName);
       imageUrl = publicData.data.publicUrl;
     }
 
@@ -93,7 +102,7 @@ export async function PUT(
       );
     }
 
-    const product = await prisma.product.update({
+    await prisma.product.update({
       where: { id },
       data: {
         ...(sku !== undefined ? { sku } : {}),
@@ -102,13 +111,9 @@ export async function PUT(
         ...(brand !== undefined ? { brand } : {}),
         ...(shortDescription !== undefined ? { shortDescription } : {}),
         ...(description !== undefined ? { description } : {}),
+        ...(productType !== undefined ? { productType } : {}),
         ...(active !== undefined ? { active } : {}),
         ...(featured !== undefined ? { featured } : {}),
-      },
-      include: {
-        prices: true,
-        inventories: true,
-        images: true,
       },
     });
 
@@ -187,23 +192,16 @@ export async function PUT(
       },
     });
 
+    if (!refreshed) {
+      return NextResponse.json(
+        { success: false, error: "Producto no encontrado después de editar" },
+        { status: 404 }
+      );
+    }
+
     return NextResponse.json({
       success: true,
-      product: {
-        id: refreshed!.id,
-        sku: refreshed!.sku,
-        name: refreshed!.name,
-        slug: refreshed!.slug,
-        brand: refreshed!.brand,
-        shortDescription: refreshed!.shortDescription,
-        description: refreshed!.description,
-        price: refreshed!.prices[0]?.price ?? 0,
-        compareAtPrice: refreshed!.prices[0]?.compareAtPrice ?? 0,
-        quantityAvailable: refreshed!.inventories[0]?.quantityAvailable ?? 0,
-        active: refreshed!.active,
-        featured: refreshed!.featured,
-        imageUrl: refreshed!.images[0]?.publicUrl,
-      },
+      product: toCatalogProduct(refreshed),
     });
   } catch (err) {
     console.error("Error editando producto:", err);

@@ -1,5 +1,3 @@
-// types/product.ts
-
 export interface CatalogProduct {
   id: number;
   sku: string;
@@ -13,10 +11,10 @@ export interface CatalogProduct {
   quantityAvailable: number;
   active: boolean;
   featured: boolean;
+  productType?: string;
   imageUrl?: string;
 }
 
-// Para crear producto (POST)
 export interface ProductCreateBody {
   sku: string;
   name: string;
@@ -29,12 +27,12 @@ export interface ProductCreateBody {
   quantityAvailable: number;
   active: boolean;
   featured: boolean;
+  productType?: string;
   imageFileBase64?: string;
   imageFileName?: string;
   imageUrl?: string;
 }
 
-// Para actualizar producto (PUT)
 export interface ProductUpdateBody extends ProductCreateBody {
   id: number;
 }

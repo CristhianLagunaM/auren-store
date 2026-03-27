@@ -1,3 +1,6 @@
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 import { AdminPanel } from "@/components/admin/admin-panel";
 import { getCatalogProducts } from "@/lib/products";
 

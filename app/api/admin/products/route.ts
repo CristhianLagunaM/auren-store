@@ -3,6 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { NextResponse } from "next/server";
 import { ProductCreateBody } from "@/types/product";
 import { toCatalogProduct } from "@/lib/admin-products";
+import { revalidatePath } from "next/cache";
 
 export async function POST(req: Request) {
   try {
@@ -104,16 +105,16 @@ export async function POST(req: Request) {
         },
         ...(imageUrl
           ? {
-              images: {
-                create: [
-                  {
-                    publicUrl: imageUrl,
-                    isPrimary: true,
-                    active: true,
-                  },
-                ],
-              },
-            }
+            images: {
+              create: [
+                {
+                  publicUrl: imageUrl,
+                  isPrimary: true,
+                  active: true,
+                },
+              ],
+            },
+          }
           : {}),
       },
       include: {
@@ -122,6 +123,9 @@ export async function POST(req: Request) {
         images: true,
       },
     });
+
+    revalidatePath("/");
+    revalidatePath("/admin");
 
     return NextResponse.json({
       success: true,

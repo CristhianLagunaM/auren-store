@@ -1,6 +1,7 @@
 import { toCatalogProduct } from "@/lib/admin-products";
 import { prisma } from "@/lib/prisma";
 import { supabaseAdmin } from "@/lib/supabase";
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(
@@ -57,7 +58,7 @@ export async function PUT(
 
     let imageUrl =
       body.imageUrl != null && body.imageUrl !== ""
-        ? String(body.imageUrl)
+        ? String(body.imageUrl).trim()
         : undefined;
 
     if (body.imageFileBase64 && body.imageFileName) {
@@ -83,6 +84,7 @@ export async function PUT(
       const publicData = supabaseAdmin.storage
         .from("products")
         .getPublicUrl(fileName);
+
       imageUrl = publicData.data.publicUrl;
     }
 
@@ -161,9 +163,7 @@ export async function PUT(
     }
 
     if (imageUrl) {
-      const primaryImage = current.images.find(
-        (img: (typeof current.images)[number]) => img.isPrimary
-      );
+      const primaryImage = current.images.find((img) => img.isPrimary);
 
       if (primaryImage) {
         await prisma.productImage.update({
@@ -201,6 +201,9 @@ export async function PUT(
       );
     }
 
+    revalidatePath("/");
+    revalidatePath("/admin");
+
     return NextResponse.json({
       success: true,
       product: toCatalogProduct(refreshed),
@@ -233,6 +236,17 @@ export async function DELETE(
       );
     }
 
+    const current = await prisma.product.findUnique({
+      where: { id },
+    });
+
+    if (!current) {
+      return NextResponse.json(
+        { success: false, error: "Producto no encontrado" },
+        { status: 404 }
+      );
+    }
+
     await prisma.productImage.deleteMany({
       where: { productId: id },
     });
@@ -248,6 +262,9 @@ export async function DELETE(
     await prisma.product.delete({
       where: { id },
     });
+
+    revalidatePath("/");
+    revalidatePath("/admin");
 
     return NextResponse.json({ success: true });
   } catch (err) {

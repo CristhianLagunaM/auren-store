@@ -1,8 +1,8 @@
 import { Sparkles, Truck, Star } from "lucide-react";
 
 const values = [
-  { icon: Truck, label: "Envío a todo el país" },
-  { icon: Star, label: "Calidad garantizada" },
+  { icon: Truck, label: "Envío a todo el país " },
+  { icon: Star, label: "Calidad garantizada " },
 ];
 
 export function HeroSection({ total }: { total: number }) {

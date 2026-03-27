@@ -4,7 +4,7 @@ import Image from "next/image";
 import { X, Minus, Plus, Trash2, ShoppingBag, MessageCircle } from "lucide-react";
 import { useCart } from "@/contexts/cart-context";
 
-const WHATSAPP_NUMBER = "573187933673";
+const WHATSAPP_NUMBER = "573102536848";
 
 function formatCOP(amount: number) {
   return new Intl.NumberFormat("es-CO", {
@@ -177,7 +177,7 @@ export function CartDrawer() {
             </div>
 
             <p className="text-xs text-[#8d726d] text-center leading-relaxed">
-              El precio final y el envío serán confirmados por nuestro asesor vía WhatsApp.
+              El precio final y el envío serán confirmados vía WhatsApp.
             </p>
 
             <a

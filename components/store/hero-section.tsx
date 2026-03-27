@@ -1,8 +1,7 @@
-import { Sparkles, Truck, ShieldCheck, Star } from "lucide-react";
+import { Sparkles, Truck, Star } from "lucide-react";
 
 const values = [
   { icon: Truck, label: "Envío a todo el país" },
-  { icon: ShieldCheck, label: "Productos originales" },
   { icon: Star, label: "Calidad garantizada" },
 ];
 
